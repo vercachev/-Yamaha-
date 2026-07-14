@@ -5,81 +5,321 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const host = document.getElementById("brand-flight");
+const letters = gsap.utils.toArray(".flight-letter:not(.flight-letter--spark)");
 
-initColorField();
-initHeroBurst();
+const BURST = [
+  { x: -300, y: -340, rot: -52, s: 0.5 },
+  { x: 20, y: -400, rot: 16, s: 0.62 },
+  { x: 340, y: -280, rot: 48, s: 0.48 },
+  { x: -360, y: 140, rot: -66, s: 0.58 },
+  { x: 320, y: 250, rot: 58, s: 0.5 },
+  { x: -20, y: 380, rot: -26, s: 0.68 },
+];
+
+const sparks = [];
+
+initSparks();
+placeLetters(getHeroOffsets());
+initLetterJourney();
+initBridge();
+initAudioPlayer();
 initAngles();
 initWhy();
 
-function initHeroBurst() {
-  const letters = gsap.utils.toArray(".logo-burst__letter");
+window.addEventListener("resize", () => {
+  if (window.scrollY < 40) placeLetters(getHeroOffsets());
+  ScrollTrigger.refresh();
+});
+
+function heroGap() {
+  return Math.min(window.innerWidth * 0.115, 150);
+}
+
+function assembleGap() {
+  return Math.min(window.innerWidth * 0.028, 26);
+}
+
+function getHeroOffsets() {
+  const gap = heroGap();
+  const total = gap * (letters.length - 1);
+  return letters.map((_, i) => ({
+    x: -total / 2 + i * gap,
+    y: 0,
+    rotation: 0,
+    scale: 1,
+    opacity: 1,
+  }));
+}
+
+function getAssembleOffsets() {
+  const gap = assembleGap();
+  const total = gap * (letters.length - 1);
+  // Match the assemble mark position: upper area of assemble section, not viewport center forever
+  const mark = document.getElementById("assemble-mark");
+  let y = -80;
+  if (mark) {
+    const rect = mark.getBoundingClientRect();
+    y = rect.top + rect.height * 0.28 - window.innerHeight / 2;
+  }
+  return letters.map((_, i) => ({
+    x: -total / 2 + i * gap,
+    y,
+    rotation: 0,
+    scale: 0.2,
+    opacity: 1,
+  }));
+}
+
+function placeLetters(offsets) {
+  if (!host) return;
+  host.classList.remove("is-done");
+  gsap.set(host, { display: "block", opacity: 1, visibility: "visible" });
+
+  letters.forEach((letter, i) => {
+    const o = offsets[i];
+    gsap.set(letter, {
+      position: "absolute",
+      left: "50%",
+      top: "50%",
+      xPercent: -50,
+      yPercent: -50,
+      x: o.x,
+      y: o.y,
+      rotation: o.rotation,
+      scale: o.scale,
+      opacity: o.opacity,
+      transformOrigin: "50% 50%",
+    });
+  });
+}
+
+function hideFlightLayer() {
+  if (!host) return;
+  gsap.set([letters, sparks], { opacity: 0 });
+  host.classList.add("is-done");
+}
+
+function showFlightLayer() {
+  if (!host) return;
+  host.classList.remove("is-done");
+  gsap.set(host, { opacity: 1, visibility: "visible" });
+}
+
+function initSparks() {
+  if (!host || reduceMotion) return;
+
+  letters.forEach((letter) => {
+    const spark = letter.cloneNode(true);
+    spark.classList.add("flight-letter--spark");
+    spark.setAttribute("aria-hidden", "true");
+    host.appendChild(spark);
+    sparks.push(spark);
+    gsap.set(spark, {
+      position: "absolute",
+      left: "50%",
+      top: "50%",
+      xPercent: -50,
+      yPercent: -50,
+      x: 0,
+      y: 0,
+      opacity: 0,
+      scale: 0.35,
+      transformOrigin: "50% 50%",
+    });
+  });
+}
+
+function initLetterJourney() {
   const tag = document.querySelector(".hero__tag");
   const hint = document.querySelector(".scroll-hint");
-
-  gsap.set(letters, { transformOrigin: "50% 50%" });
+  const mark = document.querySelector(".assemble__mark");
+  const model = document.querySelector(".assemble__model");
+  const rule = document.querySelector(".assemble__rule");
+  const brandText = document.querySelector(".assemble__brand");
 
   if (reduceMotion) {
-    gsap.set(letters, {
-      x: (i, el) => Number(el.dataset.dx) * 0.35,
-      y: (i, el) => Number(el.dataset.dy) * 0.35,
-      rotation: (i, el) => Number(el.dataset.rot) * 0.5,
-      opacity: 0.35,
-      filter: "blur(4px)",
-    });
+    hideFlightLayer();
+    gsap.set(mark, { opacity: 1 });
+    gsap.set([brandText, model], { opacity: 1, y: 0 });
+    gsap.set(rule, { scaleX: 1 });
     return;
   }
+
+  gsap.set(brandText, { opacity: 0 });
+  gsap.set(model, { opacity: 0, y: 12 });
+  gsap.set(rule, { scaleX: 0 });
+  gsap.set(mark, { opacity: 1 });
 
   const tl = gsap.timeline({
     scrollTrigger: {
       trigger: "#hero",
       start: "top top",
-      end: "bottom top",
-      scrub: 1.1,
+      endTrigger: "#assemble",
+      end: "top 35%",
+      scrub: 1.05,
+      invalidateOnRefresh: true,
+      onEnter: showFlightLayer,
+      onEnterBack: showFlightLayer,
+      onLeave: () => {
+        hideFlightLayer();
+      },
+      onLeaveBack: showFlightLayer,
     },
   });
 
-  letters.forEach((letter) => {
-    const dx = Number(letter.dataset.dx);
-    const dy = Number(letter.dataset.dy);
-    const rot = Number(letter.dataset.rot);
-    tl.to(
+  // Phase 1 — firework burst
+  letters.forEach((letter, i) => {
+    const b = BURST[i];
+    tl.fromTo(
       letter,
       {
-        x: dx,
-        y: dy,
-        rotation: rot,
-        opacity: 0,
-        filter: "blur(10px)",
+        x: () => getHeroOffsets()[i].x,
+        y: 0,
+        rotation: 0,
+        scale: 1,
+        opacity: 1,
+      },
+      {
+        x: () => getHeroOffsets()[i].x + b.x,
+        y: b.y,
+        rotation: b.rot,
+        scale: b.s,
         ease: "none",
       },
       0
     );
   });
 
-  tl.to(tag, { opacity: 0, y: -40, ease: "none" }, 0);
-  tl.to(hint, { opacity: 0, y: 20, ease: "none" }, 0);
+  sparks.forEach((spark, i) => {
+    const angle = (i / sparks.length) * Math.PI * 2 + 0.35;
+    const dist = 380 + (i % 3) * 90;
+    tl.fromTo(
+      spark,
+      { x: 0, y: 0, opacity: 0, scale: 0.25, rotation: 0 },
+      {
+        x: Math.cos(angle) * dist,
+        y: Math.sin(angle) * dist,
+        opacity: 0.9,
+        scale: 0.38,
+        rotation: (i % 2 === 0 ? 1 : -1) * (100 + i * 20),
+        ease: "none",
+      },
+      0.04
+    );
+    tl.to(spark, { opacity: 0, scale: 0.12, ease: "none" }, 0.3);
+  });
+
+  tl.to(tag, { opacity: 0, y: -20, ease: "none" }, 0);
+  tl.to(hint, { opacity: 0, ease: "none" }, 0);
+  tl.to(letters, { opacity: 0.4, ease: "none", duration: 0.1 }, 0.24);
+
+  // Phase 2 — gather above assemble mark, then hard handoff
+  letters.forEach((letter, i) => {
+    tl.to(
+      letter,
+      {
+        x: () => getAssembleOffsets()[i].x,
+        y: () => getAssembleOffsets()[i].y,
+        rotation: 0,
+        scale: 0.2,
+        opacity: 1,
+        ease: "none",
+      },
+      0.4
+    );
+  });
+
+  tl.to(letters, { opacity: 0, duration: 0.08, ease: "none" }, 0.82);
+  tl.to(sparks, { opacity: 0, duration: 0.05, ease: "none" }, 0.82);
+  tl.to(brandText, { opacity: 1, duration: 0.08, ease: "none" }, 0.82);
+  tl.to(model, { opacity: 1, y: 0, duration: 0.1, ease: "none" }, 0.86);
+  tl.to(rule, { scaleX: 1, duration: 0.08, ease: "none" }, 0.9);
+  tl.add(() => hideFlightLayer(), 0.95);
+}
+
+function initBridge() {
+  const bridge = document.getElementById("bridge");
+  if (!bridge) return;
+
+  if (reduceMotion) {
+    gsap.set(bridge, { opacity: 1, y: 0 });
+    return;
+  }
+
+  gsap.fromTo(
+    bridge,
+    { opacity: 0, y: 28 },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: "#assemble",
+        start: "top 45%",
+        toggleActions: "play none none reverse",
+      },
+    }
+  );
+}
+
+function initAudioPlayer() {
+  const player = document.getElementById("bridge-player");
+  const toggle = document.getElementById("audio-toggle");
+  const audio = document.getElementById("site-audio");
+  if (!player || !toggle || !audio) return;
+
+  const setPlaying = (playing) => {
+    player.classList.toggle("is-playing", playing);
+    toggle.setAttribute("aria-pressed", playing ? "true" : "false");
+    toggle.setAttribute("aria-label", playing ? "Пауза" : "Воспроизвести музыку");
+  };
+
+  const play = async () => {
+    try {
+      await audio.play();
+      setPlaying(true);
+    } catch {
+      setPlaying(false);
+    }
+  };
+
+  const pause = () => {
+    audio.pause();
+    setPlaying(false);
+  };
+
+  toggle.addEventListener("click", () => {
+    if (audio.paused) play();
+    else pause();
+  });
+
+  audio.addEventListener("ended", () => setPlaying(false));
+  audio.addEventListener("pause", () => {
+    if (!audio.ended) setPlaying(false);
+  });
+  audio.addEventListener("play", () => setPlaying(true));
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && !audio.paused) pause();
+  });
 }
 
 function initAngles() {
-  const stage = document.querySelector(".angles__stage");
-  if (!stage) return;
-
   const shots = gsap.utils.toArray(".shot");
   const specs = gsap.utils.toArray(".spec");
   const wires = gsap.utils.toArray(".wire");
 
-  gsap.set(shots, { opacity: 0, y: 60, scale: 0.94 });
-  if (!reduceMotion) {
-    gsap.set(specs, { opacity: 0, y: 28 });
-  }
+  gsap.set(shots, { opacity: 0, y: 40 });
+  if (!reduceMotion) gsap.set(specs, { opacity: 0, y: 20 });
 
   const desktop = window.matchMedia("(min-width: 901px)").matches;
 
   const intro = gsap.timeline({
     scrollTrigger: {
       trigger: "#angles",
-      start: "top 70%",
-      end: "top 20%",
+      start: "top 72%",
       toggleActions: reduceMotion ? "play none none none" : "play none none reverse",
     },
   });
@@ -87,10 +327,9 @@ function initAngles() {
   intro.to(shots, {
     opacity: 1,
     y: 0,
-    scale: 1,
-    duration: 1,
-    stagger: 0.18,
-    ease: "power3.out",
+    duration: 0.8,
+    stagger: 0.14,
+    ease: "power2.out",
   });
 
   if (desktop && !reduceMotion) {
@@ -105,10 +344,10 @@ function initAngles() {
         wire,
         {
           strokeDashoffset: 0,
-          duration: 1.1,
-          ease: "power2.out",
+          duration: 0.9,
+          ease: "power1.out",
         },
-        0.35 + i * 0.2
+        0.3 + i * 0.15
       );
     });
 
@@ -117,11 +356,11 @@ function initAngles() {
       {
         opacity: 1,
         y: 0,
-        duration: 0.8,
-        stagger: 0.16,
+        duration: 0.65,
+        stagger: 0.12,
         ease: "power2.out",
       },
-      0.7
+      0.55
     );
   } else {
     gsap.set(specs, { clearProps: "all" });
@@ -143,139 +382,36 @@ function initWhy() {
     .timeline({
       scrollTrigger: {
         trigger: "#why",
-        start: "top 65%",
-        end: "top 15%",
+        start: "top 68%",
         toggleActions: "play none none reverse",
       },
     })
     .to(lines, {
       opacity: 1,
       y: 0,
-      duration: 0.85,
-      stagger: 0.12,
-      ease: "power3.out",
+      duration: 0.7,
+      stagger: 0.1,
+      ease: "power2.out",
     })
     .to(
       blocks,
       {
         opacity: 1,
         y: 0,
-        duration: 0.75,
-        stagger: 0.14,
+        duration: 0.65,
+        stagger: 0.12,
         ease: "power2.out",
       },
-      "-=0.35"
+      "-=0.3"
     )
     .to(
       cta,
       {
         opacity: 1,
         y: 0,
-        duration: 0.6,
+        duration: 0.5,
         ease: "power2.out",
       },
       "-=0.2"
     );
-}
-
-function initColorField() {
-  const canvas = document.getElementById("fx-canvas");
-  const wash = document.querySelector(".color-wash");
-  if (!canvas) return;
-
-  const ctx = canvas.getContext("2d");
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  let width = 0;
-  let height = 0;
-  let raf = 0;
-  let scrollP = 0;
-
-  const blobs = Array.from({ length: 7 }, (_, i) => ({
-    x: Math.random(),
-    y: Math.random(),
-    r: 0.18 + Math.random() * 0.22,
-    speed: 0.08 + Math.random() * 0.12,
-    phase: Math.random() * Math.PI * 2,
-    hue: [190, 320, 40, 95, 265, 150, 10][i],
-  }));
-
-  function resize() {
-    width = window.innerWidth;
-    height = window.innerHeight;
-    canvas.width = Math.floor(width * dpr);
-    canvas.height = Math.floor(height * dpr);
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-
-  function draw(time) {
-    const t = time * 0.001;
-    ctx.clearRect(0, 0, width, height);
-
-    const base = `hsla(${200 + scrollP * 80}, 40%, 6%, 1)`;
-    ctx.fillStyle = base;
-    ctx.fillRect(0, 0, width, height);
-
-    ctx.globalCompositeOperation = "lighter";
-    blobs.forEach((b, i) => {
-      const drift = Math.sin(t * b.speed + b.phase);
-      const x = (b.x + Math.cos(t * b.speed * 0.7 + i) * 0.08 + scrollP * 0.15) * width;
-      const y = (b.y + drift * 0.06 + Math.sin(scrollP * Math.PI + i) * 0.08) * height;
-      const radius = Math.max(width, height) * b.r;
-      const hue = (b.hue + scrollP * 120 + t * 8) % 360;
-      const grad = ctx.createRadialGradient(x, y, 0, x, y, radius);
-      grad.addColorStop(0, `hsla(${hue}, 95%, 62%, 0.38)`);
-      grad.addColorStop(0.45, `hsla(${(hue + 40) % 360}, 90%, 55%, 0.16)`);
-      grad.addColorStop(1, "hsla(0, 0%, 0%, 0)");
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(x, y, radius, 0, Math.PI * 2);
-      ctx.fill();
-    });
-
-    // soft scan streaks
-    ctx.globalCompositeOperation = "screen";
-    for (let i = 0; i < 3; i++) {
-      const y = ((t * (20 + i * 12) + i * 180 + scrollP * height) % (height + 120)) - 60;
-      const streak = ctx.createLinearGradient(0, y, width, y + 40);
-      streak.addColorStop(0, "rgba(0,0,0,0)");
-      streak.addColorStop(0.5, `hsla(${(160 + i * 70 + scrollP * 90) % 360}, 100%, 70%, 0.08)`);
-      streak.addColorStop(1, "rgba(0,0,0,0)");
-      ctx.fillStyle = streak;
-      ctx.fillRect(0, y, width, 48);
-    }
-
-    ctx.globalCompositeOperation = "source-over";
-    raf = requestAnimationFrame(draw);
-  }
-
-  ScrollTrigger.create({
-    trigger: document.body,
-    start: "top top",
-    end: "bottom bottom",
-    scrub: true,
-    onUpdate: (self) => {
-      scrollP = self.progress;
-      if (wash) {
-        wash.style.setProperty("--scroll-hue", String(Math.round(self.progress * 220)));
-      }
-    },
-  });
-
-  resize();
-  window.addEventListener("resize", () => {
-    resize();
-    ScrollTrigger.refresh();
-  });
-
-  if (reduceMotion) {
-    ctx.fillStyle = "#0b0a12";
-    ctx.fillRect(0, 0, width, height);
-    return;
-  }
-
-  raf = requestAnimationFrame(draw);
-
-  window.addEventListener("pagehide", () => cancelAnimationFrame(raf), { once: true });
 }
