@@ -1,16 +1,13 @@
 :root {
-  --ink: #0b0a12;
-  --fog: #f4f7ff;
-  --cyan: #22e3ff;
-  --magenta: #ff3d9a;
-  --amber: #ffb020;
-  --lime: #b6ff3c;
-  --violet: #7a5cff;
-  --glass: rgba(10, 10, 18, 0.42);
-  --radius: 18px;
+  --black: #0a0a0a;
+  --ink: #111111;
+  --white: #ffffff;
+  --silver: #c8c8c8;
+  --muted: #8a8a8a;
+  --line: #2a2a2a;
+  --yamaha-red: #e60012;
   --font-display: "Bebas Neue", Impact, sans-serif;
-  --font-body: "Manrope", "Segoe UI", sans-serif;
-  --scroll-hue: 190;
+  --font-body: "IBM Plex Sans", "Segoe UI", sans-serif;
 }
 
 *,
@@ -26,9 +23,9 @@ html {
 body {
   margin: 0;
   min-height: 100%;
-  color: var(--fog);
+  color: var(--white);
   font-family: var(--font-body);
-  background: var(--ink);
+  background: var(--black);
   overflow-x: hidden;
 }
 
@@ -43,29 +40,50 @@ a {
   text-decoration: none;
 }
 
-#fx-canvas {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  pointer-events: none;
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-.color-wash {
+.bg-grid {
   position: fixed;
   inset: 0;
-  z-index: 1;
+  z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 15% 20%, color-mix(in oklab, var(--cyan) 55%, transparent), transparent 42%),
-    radial-gradient(circle at 85% 18%, color-mix(in oklab, var(--magenta) 50%, transparent), transparent 40%),
-    radial-gradient(circle at 50% 85%, color-mix(in oklab, var(--amber) 40%, transparent), transparent 45%),
-    radial-gradient(circle at 70% 55%, color-mix(in oklab, var(--lime) 28%, transparent), transparent 38%);
-  mix-blend-mode: screen;
-  opacity: 0.55;
-  transition: filter 0.4s ease;
-  filter: hue-rotate(calc(var(--scroll-hue) * 1deg)) saturate(1.25);
+    linear-gradient(var(--black), var(--ink)),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 79px,
+      rgba(255, 255, 255, 0.03) 79px,
+      rgba(255, 255, 255, 0.03) 80px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 79px,
+      rgba(255, 255, 255, 0.03) 79px,
+      rgba(255, 255, 255, 0.03) 80px
+    );
+  background-blend-mode: normal;
+  opacity: 1;
+}
+
+.bg-grid::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(230, 0, 18, 0.08), transparent 45%),
+    radial-gradient(ellipse at 50% 100%, rgba(255, 255, 255, 0.04), transparent 40%);
 }
 
 main {
@@ -73,17 +91,52 @@ main {
   z-index: 2;
 }
 
-.eyebrow {
-  margin: 0 0 0.75rem;
-  font-size: 0.78rem;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: color-mix(in oklab, var(--cyan) 80%, white);
+/* Fixed flying letters */
+.brand-flight {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(5.4rem, 22vw, 14rem);
+  line-height: 0.85;
+  letter-spacing: 0.02em;
 }
 
-/* —— Hero —— */
+.flight-letter {
+  display: inline-block;
+  color: var(--white);
+  -webkit-text-stroke: 3px var(--black);
+  paint-order: stroke fill;
+  text-shadow:
+    2px 2px 0 var(--black),
+    -2px 2px 0 var(--black),
+    2px -2px 0 var(--black),
+    -2px -2px 0 var(--black),
+    0 3px 0 var(--black);
+  will-change: transform, opacity;
+  transform-origin: center center;
+}
+
+.flight-letter--spark {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--yamaha-red);
+}
+
+/* Hero */
 .hero {
-  min-height: 180vh;
+  min-height: 170vh;
   position: relative;
 }
 
@@ -97,43 +150,17 @@ main {
   text-align: center;
 }
 
-.logo-burst {
-  display: flex;
-  gap: clamp(0.05em, 1.2vw, 0.18em);
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: clamp(5.2rem, 22vw, 14rem);
-  line-height: 0.86;
-  letter-spacing: 0.02em;
-  color: var(--fog);
-  text-shadow:
-    0 0 40px color-mix(in oklab, var(--cyan) 55%, transparent),
-    0 0 90px color-mix(in oklab, var(--magenta) 35%, transparent);
-  will-change: transform;
-}
-
-.logo-burst__letter {
-  display: inline-block;
-  transform: translate3d(0, 0, 0) rotate(0deg);
-  will-change: transform, opacity, filter;
-  background: linear-gradient(
-    125deg,
-    #fff 10%,
-    var(--cyan) 35%,
-    var(--magenta) 65%,
-    var(--amber) 95%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
 .hero__tag {
-  margin: 1.4rem 0 0;
-  font-size: clamp(0.85rem, 2vw, 1.05rem);
-  letter-spacing: 0.22em;
+  position: absolute;
+  bottom: 18vh;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: clamp(0.75rem, 1.6vw, 0.92rem);
+  font-weight: 500;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: color-mix(in oklab, var(--fog) 78%, var(--amber));
+  color: var(--silver);
 }
 
 .scroll-hint {
@@ -144,16 +171,16 @@ main {
   display: grid;
   justify-items: center;
   gap: 0.65rem;
-  font-size: 0.72rem;
-  letter-spacing: 0.24em;
+  font-size: 0.68rem;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
-  opacity: 0.8;
+  color: var(--muted);
 }
 
 .scroll-hint__line {
   width: 1px;
-  height: 42px;
-  background: linear-gradient(to bottom, var(--cyan), transparent);
+  height: 40px;
+  background: linear-gradient(to bottom, var(--yamaha-red), transparent);
   animation: pulse-line 1.8s ease-in-out infinite;
 }
 
@@ -169,9 +196,62 @@ main {
   }
 }
 
-/* —— Angles —— */
+/* Assemble */
+.assemble {
+  min-height: 140vh;
+  position: relative;
+}
+
+.assemble__pin {
+  position: sticky;
+  top: 0;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1.25rem;
+}
+
+.assemble__mark {
+  text-align: center;
+  opacity: 0;
+}
+
+.assemble__brand {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 7vw, 4.2rem);
+  letter-spacing: 0.18em;
+  line-height: 1;
+  color: var(--white);
+  -webkit-text-stroke: 1.5px var(--black);
+  paint-order: stroke fill;
+  text-shadow:
+    1px 1px 0 var(--black),
+    -1px 1px 0 var(--black),
+    1px -1px 0 var(--black),
+    -1px -1px 0 var(--black);
+}
+
+.assemble__model {
+  margin: 0.55rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 3vw, 1.7rem);
+  letter-spacing: 0.42em;
+  color: var(--yamaha-red);
+}
+
+.assemble__rule {
+  width: 72px;
+  height: 2px;
+  margin: 1.1rem auto 0;
+  background: var(--white);
+  transform: scaleX(0);
+  transform-origin: center;
+}
+
+/* Angles */
 .angles {
-  padding: 4rem 1.25rem 7rem;
+  padding: 3rem 1.25rem 7rem;
 }
 
 .section-intro {
@@ -183,13 +263,10 @@ main {
 .section-intro h2 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(2.8rem, 8vw, 5.5rem);
-  letter-spacing: 0.04em;
+  font-size: clamp(2.6rem, 7vw, 4.6rem);
+  letter-spacing: 0.08em;
   line-height: 0.95;
-  background: linear-gradient(90deg, var(--lime), var(--cyan), var(--magenta));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--white);
 }
 
 .angles__stage {
@@ -210,51 +287,33 @@ main {
 
 .wire {
   fill: none;
-  stroke-width: 2.2;
-  stroke-linecap: round;
-  stroke-dasharray: 8 10;
+  stroke: var(--white);
+  stroke-width: 1.5;
+  stroke-linecap: square;
   opacity: 0;
-}
-
-#wire-1 {
-  stroke: var(--cyan);
-  filter: drop-shadow(0 0 8px color-mix(in oklab, var(--cyan) 70%, transparent));
-}
-
-#wire-2 {
-  stroke: var(--magenta);
-  filter: drop-shadow(0 0 8px color-mix(in oklab, var(--magenta) 70%, transparent));
-}
-
-#wire-3 {
-  stroke: var(--amber);
-  filter: drop-shadow(0 0 8px color-mix(in oklab, var(--amber) 70%, transparent));
 }
 
 .shot {
   position: absolute;
   margin: 0;
   width: min(38%, 380px);
-  border: 0;
   background: transparent;
-  overflow: visible;
 }
 
 .shot img {
   width: 100%;
   aspect-ratio: 16 / 10;
   object-fit: cover;
-  border-radius: 0;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
-  outline: 1px solid color-mix(in oklab, white 16%, transparent);
+  border: 1px solid var(--line);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
 }
 
 .shot figcaption {
   margin-top: 0.55rem;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  opacity: 0.7;
+  color: var(--muted);
 }
 
 .shot--front {
@@ -276,83 +335,63 @@ main {
 .spec {
   position: absolute;
   width: min(280px, 34vw);
-  padding: 0;
-  background: transparent;
-  border: 0;
   opacity: 0;
-  transform: translateY(24px);
+  transform: translateY(20px);
 }
 
 .spec h3 {
   margin: 0 0 0.45rem;
   font-family: var(--font-display);
-  font-size: clamp(1.5rem, 3vw, 2.1rem);
-  letter-spacing: 0.04em;
+  font-size: clamp(1.4rem, 2.8vw, 1.9rem);
+  letter-spacing: 0.06em;
+  color: var(--white);
 }
 
 .spec p {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   line-height: 1.55;
-  color: color-mix(in oklab, var(--fog) 88%, transparent);
+  color: var(--silver);
 }
 
 .spec--1 {
   top: 4%;
   left: 0;
-  color: var(--cyan);
+}
+
+.spec--1 h3 {
+  color: var(--yamaha-red);
 }
 
 .spec--2 {
   top: 12%;
   right: 0;
   left: auto;
-  color: var(--magenta);
 }
 
 .spec--3 {
   bottom: 4%;
   left: 18%;
-  color: var(--amber);
 }
 
-/* —— Why —— */
+.spec--3 h3 {
+  color: var(--yamaha-red);
+}
+
+/* Why */
 .why {
   position: relative;
   min-height: 100vh;
   padding: 6rem 1.25rem 8rem;
   display: grid;
   place-items: center;
-  overflow: hidden;
-}
-
-.why__glow {
-  position: absolute;
-  inset: -20%;
-  background:
-    conic-gradient(
-      from 40deg,
-      color-mix(in oklab, var(--cyan) 40%, transparent),
-      color-mix(in oklab, var(--magenta) 45%, transparent),
-      color-mix(in oklab, var(--amber) 40%, transparent),
-      color-mix(in oklab, var(--lime) 35%, transparent),
-      color-mix(in oklab, var(--violet) 40%, transparent),
-      color-mix(in oklab, var(--cyan) 40%, transparent)
-    );
-  filter: blur(70px) saturate(1.2);
-  opacity: 0.35;
-  animation: spin-glow 18s linear infinite;
-}
-
-@keyframes spin-glow {
-  to {
-    transform: rotate(360deg);
-  }
+  border-top: 1px solid var(--line);
+  background: linear-gradient(180deg, transparent, rgba(230, 0, 18, 0.05) 40%, transparent);
 }
 
 .why__content {
   position: relative;
-  max-width: 760px;
+  max-width: 720px;
   text-align: center;
 }
 
@@ -361,19 +400,16 @@ main {
   display: grid;
   gap: 0.35rem;
   font-family: var(--font-display);
-  font-size: clamp(2.4rem, 7vw, 4.4rem);
-  line-height: 1.02;
-  letter-spacing: 0.03em;
+  font-size: clamp(2.2rem, 6.2vw, 3.8rem);
+  line-height: 1.05;
+  letter-spacing: 0.04em;
+  color: var(--white);
 }
 
 .float-line {
   display: block;
   opacity: 0;
-  transform: translateY(40px);
-  background: linear-gradient(90deg, #fff, var(--cyan) 45%, var(--magenta));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  transform: translateY(28px);
 }
 
 .why__copy {
@@ -384,45 +420,47 @@ main {
 
 .float-block {
   margin: 0;
-  font-size: clamp(1rem, 2.2vw, 1.18rem);
+  font-size: clamp(1rem, 2.1vw, 1.12rem);
   line-height: 1.7;
-  color: color-mix(in oklab, var(--fog) 90%, transparent);
+  color: var(--silver);
   opacity: 0;
-  transform: translateY(36px);
+  transform: translateY(28px);
 }
 
 .why__punch {
   font-weight: 700;
-  font-size: clamp(1.15rem, 2.6vw, 1.4rem);
-  color: #fff;
-  text-shadow: 0 0 24px color-mix(in oklab, var(--amber) 55%, transparent);
+  font-size: clamp(1.1rem, 2.4vw, 1.3rem);
+  color: var(--white);
 }
 
 .cta {
   display: inline-grid;
   place-items: center;
-  min-width: 220px;
-  padding: 0.95rem 1.6rem;
-  border: 1px solid color-mix(in oklab, white 35%, transparent);
-  background: linear-gradient(
-    120deg,
-    color-mix(in oklab, var(--cyan) 35%, transparent),
-    color-mix(in oklab, var(--magenta) 35%, transparent)
-  );
-  font-size: 0.82rem;
-  letter-spacing: 0.18em;
+  min-width: 180px;
+  padding: 0.9rem 1.5rem;
+  border: 1px solid var(--white);
+  background: var(--white);
+  color: var(--black);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  transition: transform 0.25s ease, filter 0.25s ease;
   opacity: 0;
-  transform: translateY(24px);
+  transform: translateY(18px);
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .cta:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.12);
+  background: var(--yamaha-red);
+  border-color: var(--yamaha-red);
+  color: var(--white);
 }
 
 @media (max-width: 900px) {
+  .flight-letter {
+    -webkit-text-stroke: 2px var(--black);
+  }
+
   .angles__stage {
     min-height: auto;
     display: grid;
@@ -445,26 +483,15 @@ main {
   }
 
   .spec {
-    margin-top: -0.5rem;
-    margin-bottom: 1.5rem;
+    margin-top: -0.4rem;
+    margin-bottom: 1.2rem;
     opacity: 1;
     transform: none;
-  }
-
-  .shot--detail {
-    order: 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .logo-burst__letter,
-  .float-line,
-  .float-block,
-  .cta,
-  .wire,
-  .why__glow,
   .scroll-hint__line {
-    animation: none !important;
-    transition: none !important;
+    animation: none;
   }
 }

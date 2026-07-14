@@ -3,34 +3,35 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>YAMAHA RX-V6A — Cinema DSP</title>
+    <title>YAMAHA RX-V6A</title>
     <meta
       name="description"
-      content="Yamaha RX-V6A — кинотеатральный AV-ресивер с Cinema DSP, Dolby Atmos и фирменным звучанием Natural Sound."
+      content="Yamaha RX-V6A — AV-ресивер Natural Sound с Cinema DSP, Dolby Atmos и калибровкой YPAO."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
   </head>
   <body>
-    <canvas id="fx-canvas" aria-hidden="true"></canvas>
-    <div class="color-wash" aria-hidden="true"></div>
+    <div class="bg-grid" aria-hidden="true"></div>
+
+    <div class="brand-flight" id="brand-flight" aria-hidden="true">
+      <span class="flight-letter" data-char="Y">Y</span>
+      <span class="flight-letter" data-char="A">A</span>
+      <span class="flight-letter" data-char="M">M</span>
+      <span class="flight-letter" data-char="A">A</span>
+      <span class="flight-letter" data-char="H">H</span>
+      <span class="flight-letter" data-char="A">A</span>
+    </div>
 
     <main>
       <section class="hero" id="hero">
         <div class="hero__stage">
-          <h1 class="logo-burst" aria-label="YAMAHA">
-            <span class="logo-burst__letter" data-dx="-180" data-dy="-220" data-rot="-28">Y</span>
-            <span class="logo-burst__letter" data-dx="-70" data-dy="-260" data-rot="-12">A</span>
-            <span class="logo-burst__letter" data-dx="40" data-dy="-240" data-rot="8">M</span>
-            <span class="logo-burst__letter" data-dx="160" data-dy="-180" data-rot="22">A</span>
-            <span class="logo-burst__letter" data-dx="-140" data-dy="200" data-rot="-18">H</span>
-            <span class="logo-burst__letter" data-dx="150" data-dy="230" data-rot="26">A</span>
-          </h1>
-          <p class="hero__tag">RX-V6A · Cinema DSP · Natural Sound</p>
+          <h1 class="hero__title sr-only">YAMAHA</h1>
+          <p class="hero__tag">Natural Sound · AV Receiver</p>
           <div class="scroll-hint">
             <span>листай вниз</span>
             <div class="scroll-hint__line"></div>
@@ -38,10 +39,20 @@
         </div>
       </section>
 
+      <section class="assemble" id="assemble">
+        <div class="assemble__pin">
+          <div class="assemble__mark">
+            <p class="assemble__brand" id="assemble-brand">YAMAHA</p>
+            <p class="assemble__model" id="assemble-model">RX-V6A</p>
+            <div class="assemble__rule"></div>
+          </div>
+        </div>
+      </section>
+
       <section class="angles" id="angles">
         <div class="section-intro">
           <p class="eyebrow">три ракурса</p>
-          <h2>Анатомия силы звука</h2>
+          <h2>Характеристики</h2>
         </div>
 
         <div class="angles__stage">
@@ -84,7 +95,6 @@
       </section>
 
       <section class="why" id="why">
-        <div class="why__glow" aria-hidden="true"></div>
         <div class="why__content">
           <p class="eyebrow">почему именно она</p>
           <h2 class="why__title">
@@ -97,19 +107,18 @@
           <div class="why__copy">
             <p class="float-block">
               Yamaha RX-V6A собирает музыку, фильмы и стримы в одно цельное ощущение:
-              плотный бас, чистая середина и воздушный объём Cinema DSP.
+              плотный бас, чистая середина и объём Cinema DSP.
             </p>
             <p class="float-block">
-              Ты не настраиваешь «железо» по вечерам — ты нажимаешь SCENE и оказываешься в центре
+              Ты не настраиваешь «железо» по вечерам — нажимаешь SCENE и оказываешься в центре
               сцены. Wi‑Fi, Bluetooth, AirPlay 2 и MusicCast держат весь дом на одной волне.
             </p>
             <p class="float-block why__punch">
-              Если выбирать один аппарат, который звучит дорого уже из коробки —
-              это Yamaha.
+              Если выбирать один аппарат, который звучит уверенно уже из коробки — это Yamaha.
             </p>
           </div>
 
-          <a class="cta" href="#hero">Вернуться к звуку</a>
+          <a class="cta" href="#hero">Наверх</a>
         </div>
       </section>
     </main>
