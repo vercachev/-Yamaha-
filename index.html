@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YAMAHA RX-V6A — Cinema DSP</title>
+    <meta
+      name="description"
+      content="Yamaha RX-V6A — кинотеатральный AV-ресивер с Cinema DSP, Dolby Atmos и фирменным звучанием Natural Sound."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <canvas id="fx-canvas" aria-hidden="true"></canvas>
+    <div class="color-wash" aria-hidden="true"></div>
+
+    <main>
+      <section class="hero" id="hero">
+        <div class="hero__stage">
+          <h1 class="logo-burst" aria-label="YAMAHA">
+            <span class="logo-burst__letter" data-dx="-180" data-dy="-220" data-rot="-28">Y</span>
+            <span class="logo-burst__letter" data-dx="-70" data-dy="-260" data-rot="-12">A</span>
+            <span class="logo-burst__letter" data-dx="40" data-dy="-240" data-rot="8">M</span>
+            <span class="logo-burst__letter" data-dx="160" data-dy="-180" data-rot="22">A</span>
+            <span class="logo-burst__letter" data-dx="-140" data-dy="200" data-rot="-18">H</span>
+            <span class="logo-burst__letter" data-dx="150" data-dy="230" data-rot="26">A</span>
+          </h1>
+          <p class="hero__tag">RX-V6A · Cinema DSP · Natural Sound</p>
+          <div class="scroll-hint">
+            <span>листай вниз</span>
+            <div class="scroll-hint__line"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="angles" id="angles">
+        <div class="section-intro">
+          <p class="eyebrow">три ракурса</p>
+          <h2>Анатомия силы звука</h2>
+        </div>
+
+        <div class="angles__stage">
+          <svg class="angles__wires" viewBox="0 0 1200 900" preserveAspectRatio="none" aria-hidden="true">
+            <path class="wire" id="wire-1" d="M280 260 C340 210, 380 160, 220 120" />
+            <path class="wire" id="wire-2" d="M600 420 C680 360, 760 300, 980 220" />
+            <path class="wire" id="wire-3" d="M920 620 C860 680, 720 740, 520 780" />
+          </svg>
+
+          <figure class="shot shot--front" data-shot="1">
+            <img src="/images/yamaha-front.png" alt="Yamaha RX-V6A — вид спереди" />
+            <figcaption>Фронт</figcaption>
+          </figure>
+
+          <article class="spec spec--1" data-spec="1">
+            <h3>7.2 / Dolby Atmos</h3>
+            <p>Объёмный саунд для кино и игр — Atmos, DTS:X и фирменный Cinema DSP 3D.</p>
+          </article>
+
+          <figure class="shot shot--angle" data-shot="2">
+            <img src="/images/yamaha-angle.png" alt="Yamaha RX-V6A — ракурс ¾" />
+            <figcaption>¾</figcaption>
+          </figure>
+
+          <article class="spec spec--2" data-spec="2">
+            <h3>4K / HDMI</h3>
+            <p>HDMI с поддержкой 4K и HDR — картина и звук остаются в одном ритме.</p>
+          </article>
+
+          <figure class="shot shot--detail" data-shot="3">
+            <img src="/images/yamaha-detail.png" alt="Yamaha RX-V6A — крупный план" />
+            <figcaption>Деталь</figcaption>
+          </figure>
+
+          <article class="spec spec--3" data-spec="3">
+            <h3>YPAO + SCENE</h3>
+            <p>Автокалибровка комнаты и мгновенные пресеты SCENE — один жест, готовый сценарий.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="why" id="why">
+        <div class="why__glow" aria-hidden="true"></div>
+        <div class="why__content">
+          <p class="eyebrow">почему именно она</p>
+          <h2 class="why__title">
+            <span class="float-line">Это не просто ресивер.</span>
+            <span class="float-line">Это центр домашнего кино,</span>
+            <span class="float-line">который слышит комнату</span>
+            <span class="float-line">и отвечает объёмом.</span>
+          </h2>
+
+          <div class="why__copy">
+            <p class="float-block">
+              Yamaha RX-V6A собирает музыку, фильмы и стримы в одно цельное ощущение:
+              плотный бас, чистая середина и воздушный объём Cinema DSP.
+            </p>
+            <p class="float-block">
+              Ты не настраиваешь «железо» по вечерам — ты нажимаешь SCENE и оказываешься в центре
+              сцены. Wi‑Fi, Bluetooth, AirPlay 2 и MusicCast держат весь дом на одной волне.
+            </p>
+            <p class="float-block why__punch">
+              Если выбирать один аппарат, который звучит дорого уже из коробки —
+              это Yamaha.
+            </p>
+          </div>
+
+          <a class="cta" href="#hero">Вернуться к звуку</a>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
