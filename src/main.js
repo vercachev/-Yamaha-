@@ -22,11 +22,11 @@ const sparks = [];
 initSparks();
 placeLetters(getHeroOffsets());
 initLetterJourney();
+initBridge();
 initAngles();
 initWhy();
 
 window.addEventListener("resize", () => {
-  // Only reset resting layout if near top; otherwise let scrub timeline own positions
   if (window.scrollY < 40) placeLetters(getHeroOffsets());
   ScrollTrigger.refresh();
 });
@@ -54,9 +54,16 @@ function getHeroOffsets() {
 function getAssembleOffsets() {
   const gap = assembleGap();
   const total = gap * (letters.length - 1);
+  // Match the assemble mark position: upper area of assemble section, not viewport center forever
+  const mark = document.getElementById("assemble-mark");
+  let y = -80;
+  if (mark) {
+    const rect = mark.getBoundingClientRect();
+    y = rect.top + rect.height * 0.28 - window.innerHeight / 2;
+  }
   return letters.map((_, i) => ({
     x: -total / 2 + i * gap,
-    y: -36,
+    y,
     rotation: 0,
     scale: 0.2,
     opacity: 1,
@@ -65,9 +72,8 @@ function getAssembleOffsets() {
 
 function placeLetters(offsets) {
   if (!host) return;
-  gsap.set(host, {
-    display: "block",
-  });
+  host.classList.remove("is-done");
+  gsap.set(host, { display: "block", opacity: 1, visibility: "visible" });
 
   letters.forEach((letter, i) => {
     const o = offsets[i];
@@ -85,6 +91,18 @@ function placeLetters(offsets) {
       transformOrigin: "50% 50%",
     });
   });
+}
+
+function hideFlightLayer() {
+  if (!host) return;
+  gsap.set([letters, sparks], { opacity: 0 });
+  host.classList.add("is-done");
+}
+
+function showFlightLayer() {
+  if (!host) return;
+  host.classList.remove("is-done");
+  gsap.set(host, { opacity: 1, visibility: "visible" });
 }
 
 function initSparks() {
@@ -120,8 +138,9 @@ function initLetterJourney() {
   const brandText = document.querySelector(".assemble__brand");
 
   if (reduceMotion) {
-    gsap.set(letters, { opacity: 0 });
+    hideFlightLayer();
     gsap.set(mark, { opacity: 1 });
+    gsap.set([brandText, model], { opacity: 1, y: 0 });
     gsap.set(rule, { scaleX: 1 });
     return;
   }
@@ -136,16 +155,19 @@ function initLetterJourney() {
       trigger: "#hero",
       start: "top top",
       endTrigger: "#assemble",
-      end: "center center",
+      end: "top 35%",
       scrub: 1.05,
       invalidateOnRefresh: true,
-      onRefresh: () => {
-        // Keep timeline mapping fresh on resize
+      onEnter: showFlightLayer,
+      onEnterBack: showFlightLayer,
+      onLeave: () => {
+        hideFlightLayer();
       },
+      onLeaveBack: showFlightLayer,
     },
   });
 
-  // Phase 1 — salyut / firework burst from hero positions
+  // Phase 1 — firework burst
   letters.forEach((letter, i) => {
     const b = BURST[i];
     tl.fromTo(
@@ -189,10 +211,9 @@ function initLetterJourney() {
 
   tl.to(tag, { opacity: 0, y: -20, ease: "none" }, 0);
   tl.to(hint, { opacity: 0, ease: "none" }, 0);
-
   tl.to(letters, { opacity: 0.4, ease: "none", duration: 0.1 }, 0.24);
 
-  // Phase 2 — gather into compact YAMAHA
+  // Phase 2 — gather above assemble mark, then hard handoff
   letters.forEach((letter, i) => {
     tl.to(
       letter,
@@ -208,12 +229,38 @@ function initLetterJourney() {
     );
   });
 
-  // Crossfade to crisp typeset block + model
-  tl.to(letters, { opacity: 0, duration: 0.1, ease: "none" }, 0.78);
-  tl.to(sparks, { opacity: 0, duration: 0.05, ease: "none" }, 0.78);
-  tl.to(brandText, { opacity: 1, duration: 0.1, ease: "none" }, 0.78);
-  tl.to(model, { opacity: 1, y: 0, duration: 0.12, ease: "none" }, 0.82);
-  tl.to(rule, { scaleX: 1, duration: 0.1, ease: "none" }, 0.86);
+  tl.to(letters, { opacity: 0, duration: 0.08, ease: "none" }, 0.82);
+  tl.to(sparks, { opacity: 0, duration: 0.05, ease: "none" }, 0.82);
+  tl.to(brandText, { opacity: 1, duration: 0.08, ease: "none" }, 0.82);
+  tl.to(model, { opacity: 1, y: 0, duration: 0.1, ease: "none" }, 0.86);
+  tl.to(rule, { scaleX: 1, duration: 0.08, ease: "none" }, 0.9);
+  tl.add(() => hideFlightLayer(), 0.95);
+}
+
+function initBridge() {
+  const bridge = document.getElementById("bridge");
+  if (!bridge) return;
+
+  if (reduceMotion) {
+    gsap.set(bridge, { opacity: 1, y: 0 });
+    return;
+  }
+
+  gsap.fromTo(
+    bridge,
+    { opacity: 0, y: 28 },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: "#assemble",
+        start: "top 45%",
+        toggleActions: "play none none reverse",
+      },
+    }
+  );
 }
 
 function initAngles() {
