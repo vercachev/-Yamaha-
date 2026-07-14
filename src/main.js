@@ -23,6 +23,7 @@ initSparks();
 placeLetters(getHeroOffsets());
 initLetterJourney();
 initBridge();
+initAudioPlayer();
 initAngles();
 initWhy();
 
@@ -261,6 +262,48 @@ function initBridge() {
       },
     }
   );
+}
+
+function initAudioPlayer() {
+  const player = document.getElementById("bridge-player");
+  const toggle = document.getElementById("audio-toggle");
+  const audio = document.getElementById("site-audio");
+  if (!player || !toggle || !audio) return;
+
+  const setPlaying = (playing) => {
+    player.classList.toggle("is-playing", playing);
+    toggle.setAttribute("aria-pressed", playing ? "true" : "false");
+    toggle.setAttribute("aria-label", playing ? "Пауза" : "Воспроизвести музыку");
+  };
+
+  const play = async () => {
+    try {
+      await audio.play();
+      setPlaying(true);
+    } catch {
+      setPlaying(false);
+    }
+  };
+
+  const pause = () => {
+    audio.pause();
+    setPlaying(false);
+  };
+
+  toggle.addEventListener("click", () => {
+    if (audio.paused) play();
+    else pause();
+  });
+
+  audio.addEventListener("ended", () => setPlaying(false));
+  audio.addEventListener("pause", () => {
+    if (!audio.ended) setPlaying(false);
+  });
+  audio.addEventListener("play", () => setPlaying(true));
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && !audio.paused) pause();
+  });
 }
 
 function initAngles() {

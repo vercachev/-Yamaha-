@@ -68,10 +68,32 @@
               </li>
             </ul>
 
-            <div class="bridge__wave" aria-hidden="true">
-              <span></span><span></span><span></span><span></span><span></span>
-              <span></span><span></span><span></span><span></span><span></span>
-              <span></span><span></span><span></span><span></span><span></span>
+            <div class="bridge__player" id="bridge-player">
+              <button
+                class="bridge__toggle"
+                id="audio-toggle"
+                type="button"
+                aria-label="Воспроизвести музыку"
+                aria-pressed="false"
+              >
+                <span class="bridge__icon bridge__icon--play" aria-hidden="true"></span>
+                <span class="bridge__icon bridge__icon--pause" aria-hidden="true"></span>
+              </button>
+
+              <div class="bridge__wave" id="bridge-wave" aria-hidden="true">
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
+              </div>
+
+              <div class="bridge__track">
+                <p class="bridge__track-title">Immersed</p>
+                <p class="bridge__track-meta">Kevin MacLeod · royalty-free</p>
+              </div>
+
+              <audio id="site-audio" preload="metadata" loop>
+                <source src="/audio/immersed.mp3" type="audio/mpeg" />
+              </audio>
             </div>
           </div>
         </div>
